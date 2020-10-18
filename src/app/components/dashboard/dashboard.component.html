@@ -1,0 +1,64 @@
+<!-- <div style="width: 100%">
+  <app-toolbar></app-toolbar>
+  <br />
+  <button
+    class="custom-button"
+    (click)="openDialog()"
+    mat-raised-button
+    color="primary"
+  >
+    Dialog
+  </button>
+
+  <button class="custom-button" mat-raised-button color="primary">
+    <a routerLink="table" routerLinkActive="active">Table</a>
+  </button>
+
+  <button
+    class="custom-button"
+    (click)="showToastrSuccess()"
+    mat-raised-button
+    color="primary"
+  >
+    Success Toastr
+  </button>
+
+  <button
+    class="custom-button"
+    (click)="showToastrError()"
+    mat-raised-button
+    color="primary"
+  >
+    Error Toastr
+  </button>
+
+  <button
+    class="custom-button"
+    (click)="showSpinner()"
+    mat-raised-button
+    color="primary"
+  >
+    Spinner
+  </button>
+
+  <br />
+  <br />
+
+  <div
+    style="
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    "
+  >
+    <div style="width: 80%">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div> -->
+
+<mat-drawer-container class="example-container">
+  <mat-drawer class="col-md-3" mode="side" opened>Drawer content</mat-drawer>
+  <mat-drawer-content class="col-md-9">Main content</mat-drawer-content>
+</mat-drawer-container>

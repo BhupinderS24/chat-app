@@ -1,0 +1,14 @@
+a {
+  color: white;
+  text-decoration: none; /* no underline */
+}
+
+.custom-button {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.example-container {
+  width: 100%;
+  height: 100%;
+}

@@ -1,0 +1,25 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import "~ngx-toastr/toastr";
+@import "~bootstrap/dist/css/bootstrap.min.css";
+
+@import "https://use.fontawesome.com/releases/v5.5.0/css/all.css";
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+table.mat-table {
+  border-spacing: 0;
+  width: 100%;
+}
+
+.mat-toolbar-row,
+.mat-toolbar-single-row {
+  height: 36px !important;
+}

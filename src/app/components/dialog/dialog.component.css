@@ -1,0 +1,21 @@
+h5 {
+  text-align: center;
+  font-weight: bold;
+}
+
+#no-button {
+  margin: 0px;
+}
+
+.mat-fab,
+.mat-flat-button,
+.mat-mini-fab,
+.mat-raised-button,
+.mat-button {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 0px 6px;
+  font-weight: 600;
+  line-height: 25px;
+  margin-left: 6rem;
+}
