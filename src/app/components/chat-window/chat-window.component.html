@@ -1,0 +1,37 @@
+<div class="chat-window-container">
+  <mat-toolbar
+    style="height: 50px; background-color: #ededed; font-weight: 400"
+  >
+    <div class="user-dp">
+      <img
+        style="
+          margin-right: 10px;
+          width: 35px;
+          height: 35px;
+          border-radius: 50%;
+        "
+        src="{{ user.photo }}"
+      />
+    </div>
+
+    <span>{{ user.displayName }}</span>
+  </mat-toolbar>
+
+  <mat-toolbar
+    style="height: 50px; background-color: #ededed; font-weight: 400"
+  >
+    <div class="input-group mb-3">
+      <input
+        type="text"
+        [(ngModel)]="message"
+        class="form-control custom-search-input"
+        placeholder="Search"
+        aria-describedby="basic-addon2"
+      />
+    </div>
+
+    <button (click)="sendMessage()" mat-button>
+      <span class="material-icons"> send </span>
+    </button>
+  </mat-toolbar>
+</div>

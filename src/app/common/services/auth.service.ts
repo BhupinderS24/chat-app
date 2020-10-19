@@ -96,6 +96,9 @@ export class AuthService {
     const tutRef = this.af.object(`users/${user.uid}`);
     tutRef.update(userData);
 
+    // const chatsRef = this.af.object(`userChats/${user.uid}`);
+    // chatsRef.update({ chatIds: [] });
+
     //  todos.set(
     //   userData
     //  , {merge:true})

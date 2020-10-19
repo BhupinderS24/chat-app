@@ -7,10 +7,10 @@ import { BehaviorSubject } from 'rxjs';
 export class DataService {
   constructor() {}
 
-  private messageSource = new BehaviorSubject('');
-  currentData = this.messageSource.asObservable();
+  private memberSource = new BehaviorSubject('');
+  currentMember = this.memberSource.asObservable();
 
-  changeData(message: any) {
-    this.messageSource.next(message);
+  changeData(member: any) {
+    this.memberSource.next(member);
   }
 }

@@ -19,7 +19,14 @@ table.mat-table {
   width: 100%;
 }
 
-.mat-toolbar-row,
+/* .mat-toolbar-row,
 .mat-toolbar-single-row {
   height: 36px !important;
+} */
+
+.mat-tab-label,
+.mat-tab-label-active {
+  min-width: 130px !important;
+  padding: 3px !important;
+  margin: 0px 10px !important;
 }

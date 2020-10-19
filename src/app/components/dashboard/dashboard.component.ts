@@ -5,6 +5,11 @@ import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { NgxSpinnerService } from 'ngx-spinner';
+import {
+  AngularFireDatabase,
+  AngularFireList,
+  AngularFireObject,
+} from '@angular/fire/database';
 
 @Component({
   selector: 'app-dashboard',
@@ -16,7 +21,8 @@ export class DashboardComponent implements OnInit {
     public dialog: MatDialog,
     private router: Router,
     private toastr: ToastrService,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
+    public af: AngularFireDatabase
   ) {}
 
   ngOnInit(): void {
@@ -24,6 +30,9 @@ export class DashboardComponent implements OnInit {
       const user = JSON.parse(localStorage.getItem('user'));
 
       console.log('userId', user.uid);
+
+      const tutRef = this.af.object(`userChats/${user.uid}`);
+      tutRef.update({ chatIds: [] });
     }
   }
 

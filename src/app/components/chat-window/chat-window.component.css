@@ -1,0 +1,32 @@
+.chat-window-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+}
+
+.input-group {
+  display: flex;
+  justify-content: space-between;
+  background-color: white;
+  border-radius: 5px;
+  align-items: center;
+  font-size: 13px;
+  width: 90%;
+  height: 30px;
+}
+
+.custom-search-input {
+  height: 40px;
+  width: 100%;
+  border-style: hidden;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+input:focus {
+  outline: 0px !important;
+  -webkit-appearance: none;
+  box-shadow: none !important;
+}

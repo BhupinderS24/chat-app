@@ -21,6 +21,12 @@ import { DialogComponent } from '../dialog/dialog.component';
 import { ToolbarComponent } from '../../components/toolbar/toolbar.component';
 
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatTabsModule } from '@angular/material/tabs';
+
+import { MembersComponent } from '../members/members.component';
+import { MatListModule } from '@angular/material/list';
+import { ChatWindowComponent } from '../chat-window/chat-window.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -28,6 +34,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
     TableComponent,
     ToolbarComponent,
     DialogComponent,
+    MembersComponent,
+    ChatWindowComponent,
   ],
   imports: [
     CommonModule,
@@ -47,6 +55,10 @@ import { MatSidenavModule } from '@angular/material/sidenav';
     MatTableModule,
     MatToolbarModule,
     MatSidenavModule,
+    MatTabsModule,
+    MatListModule,
+    FormsModule,
+    ReactiveFormsModule,
   ],
   entryComponents: [DialogComponent],
 })

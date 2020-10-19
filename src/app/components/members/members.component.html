@@ -1,0 +1,21 @@
+<mat-list *ngFor="let user of users" role="list">
+  <mat-list-item
+    style="cursor: pointer"
+    (click)="memberClicked(user)"
+    role="listitem"
+  >
+    <div class="user-dp">
+      <img
+        style="
+          margin-right: 10px;
+          width: 35px;
+          height: 35px;
+          border-radius: 50%;
+        "
+        src="{{ user.photo }}"
+      />
+    </div>
+
+    {{ user.displayName }}</mat-list-item
+  >
+</mat-list>
