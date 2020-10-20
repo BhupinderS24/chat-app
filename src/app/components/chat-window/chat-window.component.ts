@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ɵConsole } from '@angular/core';
 import { DataService } from '../../common/services/data.service';
 import {
   AngularFireDatabase,
@@ -19,23 +19,78 @@ export class ChatWindowComponent implements OnInit {
     private dataService: DataService,
     private af: AngularFireDatabase
   ) {}
+
   user: any;
   message: string;
   adminUser: any;
+  messages: any[];
+
+  chatId: any = '';
 
   ngOnInit(): void {
     this.dataService.currentMember.subscribe((member: any) => {
       console.log(member);
       this.user = { ...member };
+
+      this.adminUser = JSON.parse(localStorage.getItem('user'));
+
+      // const chatsRef = this.af.list(`chats`);
+
+      // chatsRef.valueChanges().subscribe((data) => {
+      //   console.log('CHATS', data);
+      // });
+
+      let arr = [];
+
+      if (Object.keys(this.user).length !== 0) {
+        const chatsRef = this.af
+          .list(`users/${this.adminUser.uid}/userChats`)
+          .valueChanges()
+          .pipe(take(1))
+          .subscribe((data: any[]) => {
+            console.log('DATAAAAA', data);
+
+            console.log(this.user.uid);
+            arr = data.filter((curr, i, arr) => curr.userId === this.user.uid);
+            console.log('CHATEISTARR', arr);
+
+            if (arr.length === 0) {
+              console.log('ARR', arr.length);
+              const messageId = this.af.list(`chats`);
+
+              const key = messageId.push({
+                members: [this.adminUser.uid, this.user.uid],
+              }).key;
+
+              this.chatId = key;
+
+              console.log(key);
+
+              const userChats = this.af.list(
+                `users/${this.adminUser.uid}/userChats`
+              );
+              userChats.push({ userId: this.user.uid, chatId: key });
+
+              const userChats2 = this.af.list(
+                `users/${this.user.uid}/userChats`
+              );
+
+              userChats2.push({ userId: this.adminUser.uid, chatId: key });
+
+              const chatmessageId = this.af.list(`chatsMessages`);
+            } else {
+              this.chatId = arr[0].chatId;
+            }
+
+            const messages = this.af.list(`chatsMessages/${this.chatId}`);
+
+            messages.valueChanges().subscribe((messages) => {
+              console.log('messages', messages);
+              this.messages = messages;
+            });
+          });
+      }
     });
-
-    this.adminUser = JSON.parse(localStorage.getItem('user'));
-
-    // const chatsRef = this.af.list(`chats`);
-
-    // chatsRef.valueChanges().subscribe((data) => {
-    //   console.log('CHATS', data);
-    // });
   }
 
   sendMessage() {
@@ -91,45 +146,9 @@ export class ChatWindowComponent implements OnInit {
   }
 
   checkIfChatExists() {
-    let arr = [];
-    const chatsRef = this.af
-      .list(`users/${this.adminUser.uid}/userChats`)
-      .valueChanges()
-      .pipe(take(1))
-      .subscribe((data: any[]) => {
-        console.log('DATAAAAA', data);
-        arr = data.filter((curr, i, arr) => curr.userId === this.user.uid);
-        console.log('CHATEISTARR', arr);
-
-        if (arr.length === 0) {
-          const messageId = this.af.list(`chats`);
-
-          const key = messageId.push({
-            members: [this.adminUser.uid, this.user.uid],
-          }).key;
-
-          console.log(key);
-
-          const userChats = this.af.list(
-            `users/${this.adminUser.uid}/userChats`
-          );
-
-          userChats.push({ userId: this.user.uid, chatId: key });
-
-          const chatmessageId = this.af.list(`chatsMessages`);
-
-          this.af
-            .list(`chatsMessages/${key}`)
-            .push({ sentBy: this.adminUser.uid, message: this.message });
-        } else {
-          arr[0].chatId;
-
-          const chatmessageId = this.af.list(`chatsMessages`);
-
-          this.af
-            .list(`chatsMessages/${arr[0].chatId}`)
-            .push({ sentBy: this.adminUser.uid, message: this.message });
-        }
-      });
+    console.log(this.chatId);
+    this.af
+      .list(`chatsMessages/${this.chatId}`)
+      .push({ sentBy: this.adminUser.uid, message: this.message });
   }
 }

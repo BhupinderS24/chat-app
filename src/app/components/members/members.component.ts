@@ -19,16 +19,24 @@ export class MembersComponent implements OnInit {
   ) {}
 
   tutorials: Observable<any[]>;
-  users: any[];
+  users: any[] = [];
+  adminUser: any;
 
   ngOnInit(): void {
     // db: AngularFireDatabase
+
+    this.adminUser = JSON.parse(localStorage.getItem('user'));
     this.af
       .list('users')
       .valueChanges()
-      .subscribe((data) => {
+      .subscribe((data: any) => {
         console.log(data);
-        this.users = [...data];
+        this.users = [];
+        for (let user of data) {
+          if (user.uid !== this.adminUser.uid) {
+            this.users.push(user);
+          }
+        }
       });
 
     console.log(this.tutorials);

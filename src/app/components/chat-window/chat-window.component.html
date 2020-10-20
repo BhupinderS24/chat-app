@@ -1,6 +1,14 @@
 <div class="chat-window-container">
   <mat-toolbar
-    style="height: 50px; background-color: #ededed; font-weight: 400"
+    style="
+      height: 50px;
+      background-color: #ededed;
+      font-weight: 400;
+      position: sticky;
+
+      top: 0;
+      z-index: 1000;
+    "
   >
     <div class="user-dp">
       <img
@@ -16,6 +24,26 @@
 
     <span>{{ user.displayName }}</span>
   </mat-toolbar>
+
+  <div
+    style="
+      padding-left: 50px;
+      padding-right: 50px;
+      height: 90vh;
+      overflow: auto;
+    "
+  >
+    <div
+      [ngClass]="{
+        sent: message.sentBy === adminUser.uid,
+        received: message.sentBy === user.uid
+      }"
+      *ngFor="let message of messages"
+      class="message sent"
+    >
+      {{ message.message }}
+    </div>
+  </div>
 
   <mat-toolbar
     style="height: 50px; background-color: #ededed; font-weight: 400"
