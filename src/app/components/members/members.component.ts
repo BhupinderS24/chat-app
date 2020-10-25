@@ -21,6 +21,7 @@ export class MembersComponent implements OnInit {
   tutorials: Observable<any[]>;
   users: any[] = [];
   adminUser: any;
+  allUser: any[];
 
   ngOnInit(): void {
     // db: AngularFireDatabase
@@ -32,11 +33,29 @@ export class MembersComponent implements OnInit {
       .subscribe((data: any) => {
         console.log(data);
         this.users = [];
-        for (let user of data) {
-          if (user.uid !== this.adminUser.uid) {
-            this.users.push(user);
-          }
-        }
+        this.allUser = data;
+
+        this.af
+          .list(`users/${this.adminUser.uid}/userChats`)
+          .valueChanges()
+          .subscribe((data: any) => {
+            console.log('UserChats', data);
+            this.users = [];
+
+            let userIds = [];
+            for (let userChats of data) {
+              userIds.push(userChats.userId);
+            }
+
+            console.log('userids', userIds);
+
+            this.users = this.allUser.filter(
+              (user) =>
+                !userIds.includes(user.uid) && user.uid !== this.adminUser.uid
+            );
+
+            console.log('USERSSSSSSSSSSS', this.users);
+          });
       });
 
     console.log(this.tutorials);
@@ -44,6 +63,10 @@ export class MembersComponent implements OnInit {
 
   memberClicked(user) {
     this.dataService.changeData(user);
+
+    this.dataService.changeChatId('');
+
+    this.dataService.changeMessages([]);
     console.log(user);
   }
 }

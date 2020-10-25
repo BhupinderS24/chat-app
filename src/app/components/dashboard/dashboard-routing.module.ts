@@ -2,12 +2,12 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { DashboardComponent } from './dashboard.component';
 import { TableComponent } from '../table/table.component';
-
+import { ChatWindowComponent } from '../chat-window/chat-window.component';
 const routes: Routes = [
   {
     path: '',
     component: DashboardComponent,
-    children: [{ path: 'table', component: TableComponent }],
+    children: [{ path: 'chats/:chatId', component: ChatWindowComponent }],
   },
 ];
 

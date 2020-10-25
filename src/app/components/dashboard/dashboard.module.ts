@@ -27,7 +27,7 @@ import { MembersComponent } from '../members/members.component';
 import { MatListModule } from '@angular/material/list';
 import { ChatWindowComponent } from '../chat-window/chat-window.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
+import { ActiveChatsComponent } from '../active-chats/active-chats.component';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -36,6 +36,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     DialogComponent,
     MembersComponent,
     ChatWindowComponent,
+    ActiveChatsComponent,
   ],
   imports: [
     CommonModule,

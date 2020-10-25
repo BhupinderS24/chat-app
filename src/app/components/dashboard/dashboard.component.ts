@@ -10,6 +10,7 @@ import {
   AngularFireList,
   AngularFireObject,
 } from '@angular/fire/database';
+import { AuthService } from '../../common/services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,7 +23,8 @@ export class DashboardComponent implements OnInit {
     private router: Router,
     private toastr: ToastrService,
     private spinner: NgxSpinnerService,
-    public af: AngularFireDatabase
+    public af: AngularFireDatabase,
+    public authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -34,6 +36,21 @@ export class DashboardComponent implements OnInit {
       const tutRef = this.af.object(`userChats/${user.uid}`);
       tutRef.update({ chatIds: [] });
     }
+    this.beforeUnload();
+  }
+
+  beforeUnload() {
+    window.onbeforeunload = () => {
+      const user = JSON.parse(localStorage.getItem('user'));
+
+      this.af
+        .object(`users/${user.uid}`)
+        .update({ lastSeen: new Date(), online: false });
+
+      // if (this.websocketStatus === OPENSTATUS) {
+      //   this.websocketService.closeConnection();
+      // }
+    };
   }
 
   openDialog() {

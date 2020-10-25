@@ -1,99 +1,283 @@
-import { Component, OnInit, ɵConsole } from '@angular/core';
+import { Component, OnDestroy, OnInit, ɵConsole } from '@angular/core';
 import { DataService } from '../../common/services/data.service';
 import {
   AngularFireDatabase,
   AngularFireList,
   AngularFireObject,
 } from '@angular/fire/database';
-
-import { take } from 'rxjs/operators';
+import { distinctUntilChanged, take } from 'rxjs/operators';
 import { MembersComponent } from '../members/members.component';
+import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-chat-window',
   templateUrl: './chat-window.component.html',
   styleUrls: ['./chat-window.component.css'],
 })
-export class ChatWindowComponent implements OnInit {
+export class ChatWindowComponent implements OnInit, OnDestroy {
   constructor(
     private dataService: DataService,
-    private af: AngularFireDatabase
+    private af: AngularFireDatabase,
+    private route: ActivatedRoute
   ) {}
+  ngOnDestroy(): void {
+    // throw new Error('Method not implemented.');
+    console.log('NGONDESTROYYYYYYY');
+  }
 
   user: any;
   message: string;
   adminUser: any;
-  messages: any[];
-
+  messages: any[] = [];
   chatId: any = '';
+  isChatExist = false;
+  showUI = false;
+  userId = '';
+  subscription1$: Subscription;
 
   ngOnInit(): void {
-    this.dataService.currentMember.subscribe((member: any) => {
-      console.log(member);
-      this.user = { ...member };
+    console.log('ngOnIT');
+    this.route.params
+      .pipe(
+        distinctUntilChanged((prev, curr) => {
+          console.log(prev, curr);
+          return prev.chatId === curr.chatId;
+        })
+      )
+      .subscribe((params) => {
+        console.log('PARAMS', params);
+        this.chatId = params.chatId;
 
-      this.adminUser = JSON.parse(localStorage.getItem('user'));
+        if (this.subscription1$ != undefined) {
+          this.subscription1$.unsubscribe();
+        }
 
-      // const chatsRef = this.af.list(`chats`);
+        const messageId = this.af.object(`chats/${this.chatId}/members`);
 
-      // chatsRef.valueChanges().subscribe((data) => {
-      //   console.log('CHATS', data);
-      // });
-
-      let arr = [];
-
-      if (Object.keys(this.user).length !== 0) {
-        const chatsRef = this.af
-          .list(`users/${this.adminUser.uid}/userChats`)
+        messageId
           .valueChanges()
           .pipe(take(1))
-          .subscribe((data: any[]) => {
-            console.log('DATAAAAA', data);
+          .subscribe((members: any[]) => {
+            this.adminUser = JSON.parse(localStorage.getItem('user'));
+            console.log('adminUser', this.adminUser);
 
-            console.log(this.user.uid);
-            arr = data.filter((curr, i, arr) => curr.userId === this.user.uid);
-            console.log('CHATEISTARR', arr);
+            let tempArr = [];
+            tempArr = members.filter((el, i, arr) => el !== this.adminUser.uid);
 
-            if (arr.length === 0) {
-              console.log('ARR', arr.length);
-              const messageId = this.af.list(`chats`);
+            this.userId = tempArr[0];
 
-              const key = messageId.push({
-                members: [this.adminUser.uid, this.user.uid],
-              }).key;
+            console.log('TEMPARR', tempArr);
 
-              this.chatId = key;
+            console.log('members', members);
+            console.log('USERID', this.userId);
+            const messageId = this.af.object(`users/${this.userId}`);
 
-              console.log(key);
-
-              const userChats = this.af.list(
-                `users/${this.adminUser.uid}/userChats`
-              );
-              userChats.push({ userId: this.user.uid, chatId: key });
-
-              const userChats2 = this.af.list(
-                `users/${this.user.uid}/userChats`
-              );
-
-              userChats2.push({ userId: this.adminUser.uid, chatId: key });
-
-              const chatmessageId = this.af.list(`chatsMessages`);
-            } else {
-              this.chatId = arr[0].chatId;
-            }
-
-            const messages = this.af.list(`chatsMessages/${this.chatId}`);
-
-            messages.valueChanges().subscribe((messages) => {
-              console.log('messages', messages);
-              this.messages = messages;
-            });
+            messageId
+              .valueChanges()
+              .pipe(take(1))
+              .subscribe((user) => {
+                this.user = user;
+                console.log('USERRRRRRRRRRRRRRR', this.user);
+              });
           });
-      }
-    });
+
+        const messages2 = this.af.list(`chatsMessages/${this.chatId}`, (ref) =>
+          ref.limitToLast(25)
+        );
+
+        this.subscription1$ = messages2.valueChanges().subscribe((messages) => {
+          console.log('messages', messages);
+          this.messages = messages;
+          this.showUI = true;
+          // if (this.messages[this.messages.length - 1].chatId === this.chatId) {
+          //   this.dataService.changeMessages(messages);
+          // }
+          const messageId = this.af.object(
+            `chats/${this.chatId}/${this.adminUser.uid}`
+          );
+
+          messageId
+            .valueChanges()
+            .pipe(take(1))
+            .subscribe((data: any) => {
+              messageId.update({
+                unReadCount: 0,
+              });
+            });
+        });
+      });
+
+    // this.dataService.currentMember.subscribe((member: any) => {
+    //   this.user = member;
+    // });
+
+    // this.dataService.currentMessages.subscribe((data) => {
+    //   this.messages = data;
+    //   this.showUI = true;
+    // });
+
+    // this.dataService.currentChatId.subscribe((chatId) => {
+    //   this.chatId = chatId;
+    // });
+
+    // this.dataService.currentMember.subscribe((member: any) => {
+    //   console.log('MEMBER', member);
+    //   this.user = { ...member };
+
+    //   this.adminUser = JSON.parse(localStorage.getItem('user'));
+
+    //   // const chatsRef = this.af.list(`chats`);
+
+    //   // chatsRef.valueChanges().subscribe((data) => {
+    //   //   console.log('CHATS', data);
+    //   // });
+
+    //   let arr = [];
+
+    //   // if (Object.keys(this.user).length !== 0) {
+    //   //   const chatsRef = this.af
+    //   //     .list(`users/${this.adminUser.uid}/userChats`)
+    //   //     .valueChanges()
+    //   //     .pipe(take(1))
+    //   //     .subscribe((data: any[]) => {
+    //   //       console.log('DATAAAAA', data);
+
+    //   //       console.log(this.user.uid);
+    //   //       arr = data.filter((curr, i, arr) => curr.userId === this.user.uid);
+    //   //       console.log('CHATEISTARR', arr);
+
+    //   //       if (arr.length === 0) {
+    //   //         this.isChatExist = false;
+    //   //         this.messages = [];
+    //   //       } else {
+    //   //         this.isChatExist = true;
+    //   //         this.chatId = arr[0].chatId;
+
+    //   //         const messages = this.af.list(`chatsMessages/${this.chatId}`);
+
+    //   //         messages
+    //   //           .valueChanges()
+    //   //           .pipe(take(1))
+    //   //           .subscribe((messages) => {
+    //   //             console.log('messages', messages);
+    //   //             this.messages = messages;
+
+    //   //             const messageId = this.af.object(
+    //   //               `chats/${this.chatId}/${this.adminUser.uid}`
+    //   //             );
+
+    //   //             messageId
+    //   //               .valueChanges()
+    //   //               .pipe(take(1))
+    //   //               .subscribe((data: any) => {
+    //   //                 messageId.update({
+    //   //                   unReadCount: 0,
+    //   //                 });
+    //   //               });
+    //   //           });
+
+    //   //         const messages2 = this.af.list(
+    //   //           `chatsMessages/${this.chatId}`,
+    //   //           (ref) => ref.limitToLast(1)
+    //   //         );
+
+    //   //         messages2
+    //   //           .valueChanges()
+
+    //   //           .subscribe((messages) => {
+    //   //             console.log('messages', messages);
+    //   //             this.messages = messages;
+
+    //   //             const messageId = this.af.object(
+    //   //               `chats/${this.chatId}/${this.adminUser.uid}`
+    //   //             );
+
+    //   //             messageId
+    //   //               .valueChanges()
+    //   //               .pipe(take(1))
+    //   //               .subscribe((data: any) => {
+    //   //                 messageId.update({
+    //   //                   unReadCount: 0,
+    //   //                 });
+    //   //               });
+
+    //   //             // for (let message of this.messages) {
+    //   //             //   if (
+    //   //             //     message.sentBy !== this.adminUser.uid &&
+    //   //             //     message.read === false
+    //   //             //   ) {
+    //   //             //     message.read = true;
+
+    //   //             //     const messageId = this.af.object(
+    //   //             //       `chats/${this.chatId}/${this.adminUser.uid}`
+    //   //             //     );
+    //   //             //     let unReadCount;
+    //   //             //     messageId
+    //   //             //       .valueChanges()
+    //   //             //       .pipe(take(1))
+    //   //             //       .subscribe((data: any) => {
+    //   //             //         unReadCount = data.unReadCount;
+
+    //   //             //         messageId.update({
+    //   //             //           unReadCount: unReadCount - 1,
+    //   //             //         });
+    //   //             //       });
+    //   //             //   }
+    //   //             // }
+    //   //           });
+    //   //       }
+    //   //     });
+    //   // }
+    // });
   }
 
   sendMessage() {
+    // if (this.chatId == '') {
+    //   let arr = [];
+    //   console.log('ARR', arr.length);
+    //   const messageId = this.af.list(`chats`);
+    //   let adminUserId = this.adminUser.uid;
+    //   let userId = this.user.uid;
+
+    //   const key = messageId.push({
+    //     members: [this.adminUser.uid, this.user.uid],
+    //     // adminUserId: { unReadCount: 0 },
+    //     // userId: { unReadCount: 0 },
+    //     // lastMessageSentBy: this.adminUser.uid,
+    //     // lastMessageTime: new Date().toString(),
+    //     // lastMessageKey: messageKey,
+    //     // lastMessage: this.message,
+    //     // unReadCount: unReadCount + 1,
+    //   }).key;
+
+    //   this.chatId = key;
+
+    //   const messageId2 = this.af.object(`chats/${this.chatId}`);
+    //   let tempObj = {};
+    //   tempObj[userId] = { unReadCount: 0 };
+
+    //   messageId2.update(tempObj);
+
+    //   let tempObj2 = {};
+    //   tempObj2[adminUserId] = { unReadCount: 0 };
+
+    //   // const messageId2 = this.af.object(`chats/${this.chatId}/${adminUserId}`);
+
+    //   messageId2.update(tempObj2);
+
+    //   console.log(key);
+
+    //   const userChats = this.af.list(`users/${this.adminUser.uid}/userChats`);
+    //   userChats.push({ userId: this.user.uid, chatId: key });
+
+    //   const userChats2 = this.af.list(`users/${this.user.uid}/userChats`);
+
+    //   userChats2.push({ userId: this.adminUser.uid, chatId: key });
+
+    //   const chatmessageId = this.af.list(`chatsMessages`);
+    // }
+
     this.checkIfChatExists();
 
     /***UsedCode***/
@@ -147,8 +331,56 @@ export class ChatWindowComponent implements OnInit {
 
   checkIfChatExists() {
     console.log(this.chatId);
-    this.af
-      .list(`chatsMessages/${this.chatId}`)
-      .push({ sentBy: this.adminUser.uid, message: this.message });
+    const messageKey = this.af.list(`chatsMessages/${this.chatId}`).push({
+      sentBy: this.adminUser.uid,
+      message: this.message,
+      sent: true,
+      time: new Date().toString(),
+      chatId: this.chatId,
+      read: false,
+    }).key;
+
+    // console.log('LastSeen', this.user.lastSeen);
+
+    const messageId = this.af.object(`chats/${this.chatId}/${this.userId}`);
+
+    const chatInfo = this.af.object(`chats/${this.chatId}`);
+    let unReadCount;
+    messageId
+      .valueChanges()
+      .pipe(take(1))
+      .subscribe((data: any) => {
+        console.log('DATA', data);
+        unReadCount = data.unReadCount;
+
+        messageId.update({
+          unReadCount: unReadCount + 1,
+        });
+
+        // const messageId2 = this.af.object(`chats/${this.chatId}`);
+
+        chatInfo.update({
+          lastMessageSentBy: this.adminUser.uid,
+          lastMessageTime: new Date().toString(),
+          lastMessageKey: messageKey,
+          lastMessage: this.message,
+        });
+      });
+  }
+
+  getTime(time) {
+    return this.displayCurrentTime(time);
+  }
+
+  displayCurrentTime(time) {
+    var date = new Date(time);
+    var hours = date.getHours() > 12 ? date.getHours() - 12 : date.getHours();
+    var am_pm = date.getHours() >= 12 ? 'PM' : 'AM';
+    let hoursInString = hours < 10 ? '0' + hours : hours;
+    var minutes =
+      date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+    //var seconds =
+    //date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+    return hoursInString + ':' + minutes + ' ' + am_pm;
   }
 }

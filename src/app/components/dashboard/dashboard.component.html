@@ -61,15 +61,20 @@
 <mat-drawer-container class="example-container">
   <mat-drawer class="col-md-3" mode="side" opened
     >Drawer content
-
+    <a class="nav-link" (click)="authService.SignOut()">
+      <i class="fas fa-sign-out-alt"></i>Log out
+    </a>
     <mat-tab-group>
-      <mat-tab label="Chats"> Chats </mat-tab>
+      <mat-tab label="Chats">
+        <app-active-chats></app-active-chats>
+      </mat-tab>
       <mat-tab label="Members">
         <app-members></app-members>
       </mat-tab>
     </mat-tab-group>
   </mat-drawer>
   <mat-drawer-content style="padding: 0px" class="col-md-9">
-    <app-chat-window></app-chat-window>
+    <!-- <app-chat-window></app-chat-window> -->
+    <router-outlet></router-outlet>
   </mat-drawer-content>
 </mat-drawer-container>

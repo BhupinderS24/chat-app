@@ -1,0 +1,51 @@
+.chat-right-up {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.name {
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.message {
+  font-size: 14px;
+}
+
+.time {
+  font-size: 12px;
+}
+
+.chat-right-up {
+  width: 100%;
+}
+
+.chat-right {
+  width: 100%;
+}
+
+.newMessages {
+  border-radius: 50%;
+  width: 9%;
+  text-align: center;
+  background-color: #25d366;
+  color: white;
+  position: relative;
+  right: 10px;
+}
+
+.message {
+  width: 80%;
+}
+
+.chat-right-down {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.green-color {
+  color: #25d366;
+}
