@@ -28,6 +28,8 @@ import { MatListModule } from '@angular/material/list';
 import { ChatWindowComponent } from '../chat-window/chat-window.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActiveChatsComponent } from '../active-chats/active-chats.component';
+import { InviteWindowComponent } from '../invite-window/invite-window.component';
+import { InvitationsComponent } from '../invitations/invitations.component';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -37,6 +39,8 @@ import { ActiveChatsComponent } from '../active-chats/active-chats.component';
     MembersComponent,
     ChatWindowComponent,
     ActiveChatsComponent,
+    InviteWindowComponent,
+    InvitationsComponent,
   ],
   imports: [
     CommonModule,

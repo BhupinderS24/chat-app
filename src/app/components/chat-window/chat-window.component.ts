@@ -1,10 +1,6 @@
 import { Component, OnDestroy, OnInit, ɵConsole } from '@angular/core';
 import { DataService } from '../../common/services/data.service';
-import {
-  AngularFireDatabase,
-  AngularFireList,
-  AngularFireObject,
-} from '@angular/fire/database';
+import { AngularFireDatabase } from '@angular/fire/database';
 import { distinctUntilChanged, take } from 'rxjs/operators';
 import { MembersComponent } from '../members/members.component';
 import { ActivatedRoute } from '@angular/router';
@@ -23,7 +19,6 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   ) {}
   ngOnDestroy(): void {
     // throw new Error('Method not implemented.');
-    console.log('NGONDESTROYYYYYYY');
   }
 
   user: any;
@@ -35,76 +30,111 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   showUI = false;
   userId = '';
   subscription1$: Subscription;
+  subscription2$: Subscription;
+  invitation: false;
+  sentBy: '';
+  blockedUser = [];
+  blockedBy = [];
 
   ngOnInit(): void {
-    console.log('ngOnIT');
     this.route.params
       .pipe(
         distinctUntilChanged((prev, curr) => {
-          console.log(prev, curr);
           return prev.chatId === curr.chatId;
         })
       )
       .subscribe((params) => {
-        console.log('PARAMS', params);
+        this.adminUser = JSON.parse(localStorage.getItem('user'));
         this.chatId = params.chatId;
 
         if (this.subscription1$ != undefined) {
           this.subscription1$.unsubscribe();
         }
 
-        const messageId = this.af.object(`chats/${this.chatId}/members`);
+        if (this.subscription2$ != undefined) {
+          this.subscription2$.unsubscribe();
+        }
 
-        messageId
+        const messageId2 = this.af.object(`chats/${this.chatId}`);
+
+        this.subscription2$ = messageId2
+          .valueChanges()
+          .subscribe((data: any) => {
+            if (data.invitation !== undefined) {
+              this.invitation = data.invitation;
+            }
+
+            if (data.lastMessageSentBy !== undefined) {
+              this.sentBy = data.lastMessageSentBy;
+            }
+          });
+
+        const messageId3 = this.af.object(`chats/${this.chatId}/members`);
+
+        messageId3
           .valueChanges()
           .pipe(take(1))
           .subscribe((members: any[]) => {
-            this.adminUser = JSON.parse(localStorage.getItem('user'));
-            console.log('adminUser', this.adminUser);
-
             let tempArr = [];
             tempArr = members.filter((el, i, arr) => el !== this.adminUser.uid);
 
             this.userId = tempArr[0];
 
-            console.log('TEMPARR', tempArr);
+            const messageId4 = this.af.object(`users/${this.userId}`);
 
-            console.log('members', members);
-            console.log('USERID', this.userId);
-            const messageId = this.af.object(`users/${this.userId}`);
-
-            messageId
+            messageId4
               .valueChanges()
               .pipe(take(1))
               .subscribe((user) => {
                 this.user = user;
-                console.log('USERRRRRRRRRRRRRRR', this.user);
               });
           });
 
-        const messages2 = this.af.list(`chatsMessages/${this.chatId}`, (ref) =>
+        const messages5 = this.af.list(`chatsMessages/${this.chatId}`, (ref) =>
           ref.limitToLast(25)
         );
 
-        this.subscription1$ = messages2.valueChanges().subscribe((messages) => {
-          console.log('messages', messages);
+        this.subscription1$ = messages5.valueChanges().subscribe((messages) => {
           this.messages = messages;
           this.showUI = true;
           // if (this.messages[this.messages.length - 1].chatId === this.chatId) {
           //   this.dataService.changeMessages(messages);
           // }
-          const messageId = this.af.object(
+          const messageId6 = this.af.object(
             `chats/${this.chatId}/${this.adminUser.uid}`
           );
 
-          messageId
+          messageId6
             .valueChanges()
             .pipe(take(1))
             .subscribe((data: any) => {
-              messageId.update({
+              messageId6.update({
                 unReadCount: 0,
               });
             });
+        });
+
+        this.blockedUser = [];
+        this.blockedBy = [];
+        const messageId4 = this.af.list(`users/${this.adminUser.uid}/blocked`);
+
+        messageId4
+          .valueChanges()
+
+          .subscribe((blocked: any[]) => {
+            for (let user of blocked) {
+              this.blockedUser.push(user.user);
+            }
+          });
+
+        const messageId5 = this.af.list(
+          `users/${this.adminUser.uid}/blockedBy`
+        );
+
+        messageId5.valueChanges().subscribe((blocked: any[]) => {
+          for (let user of blocked) {
+            this.blockedBy.push(user.user);
+          }
         });
       });
 
@@ -233,6 +263,9 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   }
 
   sendMessage() {
+    // const messageId6 = this.af.object(
+    //   `users/${this.userId}/${this.adminUser.uid}`
+    // );
     // if (this.chatId == '') {
     //   let arr = [];
     //   console.log('ARR', arr.length);
@@ -242,13 +275,11 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
 
     //   const key = messageId.push({
     //     members: [this.adminUser.uid, this.user.uid],
-    //     // adminUserId: { unReadCount: 0 },
-    //     // userId: { unReadCount: 0 },
+    //
     //     // lastMessageSentBy: this.adminUser.uid,
     //     // lastMessageTime: new Date().toString(),
     //     // lastMessageKey: messageKey,
     //     // lastMessage: this.message,
-    //     // unReadCount: unReadCount + 1,
     //   }).key;
 
     //   this.chatId = key;
@@ -330,7 +361,6 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   }
 
   checkIfChatExists() {
-    console.log(this.chatId);
     const messageKey = this.af.list(`chatsMessages/${this.chatId}`).push({
       sentBy: this.adminUser.uid,
       message: this.message,
@@ -350,7 +380,6 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
       .valueChanges()
       .pipe(take(1))
       .subscribe((data: any) => {
-        console.log('DATA', data);
         unReadCount = data.unReadCount;
 
         messageId.update({
@@ -382,5 +411,26 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
     //var seconds =
     //date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
     return hoursInString + ':' + minutes + ' ' + am_pm;
+  }
+
+  onAccept() {
+    const chatInfo = this.af.object(`chats/${this.chatId}`);
+
+    chatInfo.update({ invitation: false });
+  }
+
+  onRemove() {
+    const tutorialsRef = this.af.list(`users/${this.adminUser.uid}/blocked`);
+    tutorialsRef.push({ user: this.user.uid });
+
+    const tutorialsRef2 = this.af.list(`users/${this.userId}/blockedBy`);
+    tutorialsRef2.push({ user: this.adminUser.uid });
+
+    const chatInfo = this.af.object(`chats/${this.chatId}`);
+
+    chatInfo.update({ invitation: false });
+
+    // const tutorialsRef2 = this.af.list('chatMessages');
+    // tutorialsRef2.remove(this.chatId);
   }
 }

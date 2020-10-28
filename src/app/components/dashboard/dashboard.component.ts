@@ -31,8 +31,6 @@ export class DashboardComponent implements OnInit {
     if (localStorage.getItem('user')) {
       const user = JSON.parse(localStorage.getItem('user'));
 
-      console.log('userId', user.uid);
-
       const tutRef = this.af.object(`userChats/${user.uid}`);
       tutRef.update({ chatIds: [] });
     }

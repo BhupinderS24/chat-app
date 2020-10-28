@@ -6,7 +6,7 @@ import {
   AngularFireObject,
 } from '@angular/fire/database';
 import { DataService } from '../../common/services/data.service';
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-members',
   templateUrl: './members.component.html',
@@ -15,7 +15,8 @@ import { DataService } from '../../common/services/data.service';
 export class MembersComponent implements OnInit {
   constructor(
     public af: AngularFireDatabase,
-    private dataService: DataService
+    private dataService: DataService,
+    private router: Router
   ) {}
 
   tutorials: Observable<any[]>;
@@ -31,7 +32,6 @@ export class MembersComponent implements OnInit {
       .list('users')
       .valueChanges()
       .subscribe((data: any) => {
-        console.log(data);
         this.users = [];
         this.allUser = data;
 
@@ -39,7 +39,6 @@ export class MembersComponent implements OnInit {
           .list(`users/${this.adminUser.uid}/userChats`)
           .valueChanges()
           .subscribe((data: any) => {
-            console.log('UserChats', data);
             this.users = [];
 
             let userIds = [];
@@ -47,26 +46,20 @@ export class MembersComponent implements OnInit {
               userIds.push(userChats.userId);
             }
 
-            console.log('userids', userIds);
-
             this.users = this.allUser.filter(
               (user) =>
                 !userIds.includes(user.uid) && user.uid !== this.adminUser.uid
             );
-
-            console.log('USERSSSSSSSSSSS', this.users);
           });
       });
-
-    console.log(this.tutorials);
   }
 
   memberClicked(user) {
-    this.dataService.changeData(user);
+    this.router.navigateByUrl(`/dashboard/invite/${user.uid}`);
+    // this.dataService.changeData(user);
 
-    this.dataService.changeChatId('');
+    // this.dataService.changeChatId('');
 
-    this.dataService.changeMessages([]);
-    console.log(user);
+    // this.dataService.changeMessages([]);
   }
 }

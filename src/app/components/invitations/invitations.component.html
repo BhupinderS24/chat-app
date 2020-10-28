@@ -1,4 +1,4 @@
-<mat-list *ngFor="let user of users" role="list">
+<!-- <mat-list *ngFor="let user of users" role="list">
   <mat-list-item
     style="cursor: pointer"
     (click)="memberClicked(user)"
@@ -6,48 +6,43 @@
   >
     <div class="user-dp">
       <img
-        *ngIf="user.userInfo.photo !== undefined"
+        *ngIf="user.photo !== undefined"
         style="
           margin-right: 10px;
           width: 35px;
           height: 35px;
           border-radius: 50%;
         "
-        src="{{ user.userInfo.photo }}"
+        src="{{ user.photo }}"
       />
 
-      <span *ngIf="user.userInfo.photo === undefined" class="material-icons">
+      <span *ngIf="user.photo === undefined" class="material-icons">
         account_circle_outlined
       </span>
     </div>
     <div class="chat-right">
       <div class="chat-right-up">
         <div class="name">
-          {{ user.userInfo.displayName }}
+          {{ user.displayName }}
         </div>
 
         <div
-          [ngClass]="{
-            'green-color': user.chatInfo[adminUser.uid].unReadCount != 0
-          }"
+          [ngClass]="{ 'green-color': user[adminUser.uid].unReadCount != 0 }"
           class="time"
         >
-          {{ displayCurrentTime(user.chatInfo.lastMessageTime) }}
+          {{ displayCurrentTime(user.lastMessageTime) }}
         </div>
       </div>
 
       <div class="chat-right-down">
         <div isEllipsisActive class="message">
-          {{ user.chatInfo.lastMessage }}
+          {{ user.lastMessage }}
         </div>
 
-        <div
-          *ngIf="user.chatInfo[adminUser.uid].unReadCount != 0"
-          class="newMessages"
-        >
-          {{ user.chatInfo[adminUser.uid].unReadCount }}
+        <div *ngIf="user[adminUser.uid].unReadCount != 0" class="newMessages">
+          {{ user[adminUser.uid].unReadCount }}
         </div>
       </div>
     </div>
   </mat-list-item>
-</mat-list>
+</mat-list> -->

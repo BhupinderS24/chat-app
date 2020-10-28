@@ -22,6 +22,10 @@ export class ActiveChatsComponent implements OnInit {
   isChatExist = false;
   messages = [];
   chatId: string;
+  userIds = [];
+  userInfos = [];
+  allchatIds = [];
+  userChatsObjs = [];
 
   constructor(
     public af: AngularFireDatabase,
@@ -37,64 +41,115 @@ export class ActiveChatsComponent implements OnInit {
     // })
 
     this.af
-      .list(`users`)
+      .list(`users/${this.adminUser.uid}/userChats`)
       .valueChanges()
-      .subscribe((user: any) => {
-        console.log('USERRRRRRRRRRRR', user);
-        this.allUsers = user;
 
+      .subscribe((data: any) => {
+        console.log('UserChats', data);
+        this.users = [];
+
+        if (this.userChatsObjs.length === 0) {
+          for (let obj of data) {
+            this.userChatsObjs.push(obj);
+            this.userIds.push(obj.userId);
+            this.allchatIds.push(obj.chatId);
+            this.getChatsAndUserInfo(obj);
+          }
+        }
+
+        if (this.userChatsObjs.length < data.length) {
+          this.userChatsObjs.push(data[data.length - 1]);
+          this.getChatsAndUserInfo(data[data.length - 1]);
+        }
+
+        // this.af
+        //   .list(`users/${this.adminUser.uid}/userChats`)
+        //   .valueChanges()
+        //   .subscribe((data: any) => {
+        //     if (data.length !== this.userChatsObjs.length) {
+        //       this.userChatsObjs.push(data);
+        //       this.getChatsAndUserInfo(data[data.length - 1]);
+        //     }
+        //   });
+      });
+
+    // this.af
+    //   .list(`users`)
+    //   .valueChanges()
+    //   .subscribe((user: any) => {
+    //     this.allUsers = user;
+
+    //     this.af
+    //       .list(`users/${this.adminUser.uid}/userChats`)
+    //       .valueChanges()
+    //       .subscribe((data: any) => {
+    //         this.users = [];
+
+    //         for (let chatUser of data) {
+    //           for (let user of this.allUsers) {
+    //             if (chatUser.userId === user.uid) {
+    //               let chat = {};
+    //               this.af
+    //                 .object(`chats/${chatUser.chatId}`)
+    //                 .valueChanges()
+    //                 .subscribe((chatInfo: any) => {
+    //                   chat = { ...chatInfo };
+
+    //                   const fullInfo = { ...user, ...chat };
+
+    //                   for (let i in this.users) {
+    //                     if (this.users[i].uid == fullInfo.uid) {
+    //                       this.users[i] = fullInfo;
+
+    //                       return;
+    //                     }
+    //                   }
+    //                   this.users.push(fullInfo);
+    //                 });
+    //             }
+    //           }
+    //         }
+
+    //         // recentChatInfo
+
+    //         // this.users = [];
+    //         // for (let user of data) {
+    //         //   if (user.uid !== this.adminUser.uid) {
+    //         //     this.users.push(user);
+    //         //   }
+    //         // }
+    //       });
+    //   });
+  }
+
+  getChatsAndUserInfo(obj) {
+    this.af
+      .object(`users/${obj.userId}`)
+      .valueChanges()
+      .pipe(take(1))
+      .subscribe((userInfo: any) => {
         this.af
-          .list(`users/${this.adminUser.uid}/userChats`)
+          .object(`chats/${obj.chatId}`)
           .valueChanges()
-          .subscribe((data: any) => {
-            console.log('UserChats', data);
-            this.users = [];
-
-            for (let chatUser of data) {
-              for (let user of this.allUsers) {
-                console.log(chatUser.userId, user.uid);
-                if (chatUser.userId === user.uid) {
-                  let chat = {};
-                  this.af
-                    .object(`chats/${chatUser.chatId}`)
-                    .valueChanges()
-                    .subscribe((chatInfo: any) => {
-                      console.log('CHATINFO', chatInfo);
-                      chat = { ...chatInfo };
-
-                      const fullInfo = { ...user, ...chat };
-
-                      for (let i in this.users) {
-                        if (this.users[i].uid == fullInfo.uid) {
-                          this.users[i] = fullInfo;
-                          console.log('USER', user);
-                          console.log('USERSSSSS', this.users);
-                          return;
-                        }
-                      }
-                      this.users.push(fullInfo);
-
-                      console.log('USERSSSSS', this.users);
-                    });
-                }
+          .subscribe((chatInfo: any) => {
+            for (let index in this.users) {
+              if (this.users[index].uid === userInfo.uid) {
+                this.users[index] = {
+                  ...{ userInfo },
+                  ...{ chatInfo },
+                };
+                return;
               }
             }
 
-            // recentChatInfo
-
-            // this.users = [];
-            // for (let user of data) {
-            //   if (user.uid !== this.adminUser.uid) {
-            //     this.users.push(user);
-            //   }
-            // }
+            this.users.push({ ...{ userInfo }, ...{ chatInfo } });
+            console.log(this.users);
           });
       });
   }
 
   memberClicked(user) {
     this.dataService.changeData(user);
-    console.log('USER', user);
 
     // console.log('MEMBER', member);
     // this.user = { ...member };
@@ -107,47 +162,49 @@ export class ActiveChatsComponent implements OnInit {
     //   console.log('CHATS', data);
     // });
 
+    for (let obj of this.userChatsObjs) {
+      if (obj.userId === user.userInfo.uid) {
+        this.router.navigateByUrl(`/dashboard/chats/${obj.userId}`);
+      }
+    }
+
     let arr = [];
 
-    const chatsRef = this.af
-      .list(`users/${this.adminUser.uid}/userChats`)
-      .valueChanges()
-      .pipe(take(1))
-      .subscribe((data: any[]) => {
-        console.log('DATAAAAA', data);
+    // const chatsRef = this.af
+    //   .list(`users/${this.adminUser.uid}/userChats`)
+    //   .valueChanges()
+    //   .pipe(take(1))
+    //   .subscribe((data: any[]) => {
+    //     arr = data.filter((curr, i, arr) => curr.userId === user.uid);
 
-        console.log(user.uid);
-        arr = data.filter((curr, i, arr) => curr.userId === user.uid);
-        console.log('CHATEISTARR', arr);
+    //     this.chatId = arr[0].chatId;
 
-        this.chatId = arr[0].chatId;
+    //     // this.dataService.changeChatId(this.chatId);
 
-        // this.dataService.changeChatId(this.chatId);
+    //     this.router.navigateByUrl(`/dashboard/chats/${this.chatId}`);
 
-        this.router.navigateByUrl(`/dashboard/chats/${this.chatId}`);
+    //     // const messages = this.af.list(`chatsMessages/${this.chatId}`);
 
-        // const messages = this.af.list(`chatsMessages/${this.chatId}`);
+    //     // messages
+    //     //   .valueChanges()
+    //     //   .pipe(take(1))
+    //     //   .subscribe((messages) => {
+    //     //     console.log('messages', messages);
+    //     //     this.messages = messages;
 
-        // messages
-        //   .valueChanges()
-        //   .pipe(take(1))
-        //   .subscribe((messages) => {
-        //     console.log('messages', messages);
-        //     this.messages = messages;
+    //     //     const messageId = this.af.object(
+    //     //       `chats/${this.chatId}/${this.adminUser.uid}`
+    //     //     );
 
-        //     const messageId = this.af.object(
-        //       `chats/${this.chatId}/${this.adminUser.uid}`
-        //     );
-
-        //     messageId
-        //       .valueChanges()
-        //       .pipe(take(1))
-        //       .subscribe((data: any) => {
-        //         messageId.update({
-        //           unReadCount: 0,
-        //         });
-        //       });
-      });
+    //     //     messageId
+    //     //       .valueChanges()
+    //     //       .pipe(take(1))
+    //     //       .subscribe((data: any) => {
+    //     //         messageId.update({
+    //     //           unReadCount: 0,
+    //     //         });
+    //     //       });
+    //   });
   }
 
   displayCurrentTime(time) {

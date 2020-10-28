@@ -1,4 +1,4 @@
-<div *ngIf="showUI" class="chat-window-container">
+<div *ngIf="showUI && !invitation" class="chat-window-container">
   <mat-toolbar
     style="
       height: 50px;
@@ -64,6 +64,7 @@
   </div>
 
   <mat-toolbar
+    *ngIf="!blockedUser.includes(userId) && !blockedBy.includes(userId)"
     style="height: 50px; background-color: #ededed; font-weight: 400"
   >
     <div class="input-group mb-3">
@@ -80,4 +81,23 @@
       <span class="material-icons"> send </span>
     </button>
   </mat-toolbar>
+
+  <mat-toolbar
+    *ngIf="blockedUser.includes(userId) || blockedBy.includes(userId)"
+    style="height: 50px; background-color: #ededed; font-weight: 400"
+  >
+    You cannot reply to this conversation
+  </mat-toolbar>
+</div>
+
+<div *ngIf="invitation && sentBy !== adminUser.uid">
+  <div>{{ user.displayName }} wants to Send you message</div>
+
+  <button (click)="onAccept()" mat-raised-button color="primary">Accept</button>
+
+  <button (click)="onRemove()" mat-raised-button color="primary">Ignore</button>
+</div>
+
+<div *ngIf="invitation && sentBy === adminUser.uid">
+  <div>Request Sent Waiting for Response</div>
 </div>

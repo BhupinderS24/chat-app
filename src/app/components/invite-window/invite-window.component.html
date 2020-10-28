@@ -1,0 +1,95 @@
+<div *ngIf="showUI" class="chat-window-container">
+  <div>
+    <mat-toolbar
+      style="
+        height: 50px;
+        background-color: #ededed;
+        font-weight: 400;
+        position: sticky;
+        margin-bottom: 20px;
+        top: 0;
+        z-index: 1000;
+      "
+    >
+      <div class="user-dp">
+        <img
+          style="
+            margin-right: 10px;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+          "
+          src="{{ user.photo }}"
+        />
+      </div>
+
+      <span>{{ user.displayName }}</span>
+    </mat-toolbar>
+
+    <div
+      style="
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-direction: column;
+      "
+    >
+      <mat-card
+        style="
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-bottom: 20px;
+        "
+        class="col-md-4"
+      >
+        <div class="user-dp">
+          <img
+            style="
+              margin-right: 10px;
+              width: 100px;
+              height: 100px;
+              border-radius: 50%;
+            "
+            src="{{ user.photo }}"
+          />
+        </div>
+
+        <span style="font-size: 18px">{{ user.displayName }}</span>
+      </mat-card>
+
+      <mat-card
+        style="display: flex; flex-direction: column; align-items: center"
+        class="col-md-4"
+      >
+        <span>Say Hi to {{ user.displayName }} </span>
+        <button
+          (click)="sendMessage('Hi')"
+          style="width: 75px; text-align: center"
+          mat-raised-button
+          color="primary"
+        >
+          Say Hi
+        </button>
+      </mat-card>
+    </div>
+  </div>
+
+  <mat-toolbar
+    style="height: 50px; background-color: #ededed; font-weight: 400"
+  >
+    <div class="input-group mb-3">
+      <input
+        type="text"
+        [(ngModel)]="message"
+        class="form-control custom-search-input"
+        placeholder="Search"
+        aria-describedby="basic-addon2"
+      />
+    </div>
+
+    <button mat-button>
+      <span class="material-icons"> send </span>
+    </button>
+  </mat-toolbar>
+</div>
