@@ -1,6 +1,6 @@
 <mat-list *ngFor="let user of users" role="list">
   <mat-list-item
-    style="cursor: pointer"
+    style="cursor: pointer; overflow: hidden"
     (click)="memberClicked(user)"
     role="listitem"
   >
@@ -16,7 +16,11 @@
         src="{{ user.userInfo.photo }}"
       />
 
-      <span *ngIf="user.userInfo.photo === undefined" class="material-icons">
+      <span
+        style="font-size: 40px; width: 35px; height: 35px; margin-right: 10px"
+        *ngIf="user.userInfo.photo === undefined"
+        class="material-icons"
+      >
         account_circle_outlined
       </span>
     </div>

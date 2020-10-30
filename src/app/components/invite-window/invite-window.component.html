@@ -2,16 +2,16 @@
   <div>
     <mat-toolbar
       style="
-        height: 50px;
-        background-color: #ededed;
+        height: 70px;
         font-weight: 400;
         position: sticky;
         margin-bottom: 20px;
         top: 0;
         z-index: 1000;
+        border-bottom: 1px solid #ddd;
       "
     >
-      <div class="user-dp">
+      <div *ngIf="user.photo !== undefined" class="user-dp">
         <img
           style="
             margin-right: 10px;
@@ -22,6 +22,14 @@
           src="{{ user.photo }}"
         />
       </div>
+
+      <span
+        style="font-size: 40px; width: 35px; height: 35px; margin-right: 10px"
+        *ngIf="user.photo === undefined"
+        class="material-icons"
+      >
+        account_circle_outlined
+      </span>
 
       <span>{{ user.displayName }}</span>
     </mat-toolbar>
@@ -40,10 +48,11 @@
           justify-content: center;
           align-items: center;
           margin-bottom: 20px;
+          background-color: #fafafa;
         "
         class="col-md-4"
       >
-        <div class="user-dp">
+        <div *ngIf="user.photo !== undefined" class="user-dp">
           <img
             style="
               margin-right: 10px;
@@ -55,11 +64,30 @@
           />
         </div>
 
+        <div *ngIf="user.photo === undefined" class="user-dp">
+          <span
+            style="
+              font-size: 100px;
+              width: 100px;
+              height: 100px;
+              margin-right: 10px;
+            "
+            class="material-icons"
+          >
+            account_circle_outlined
+          </span>
+        </div>
+
         <span style="font-size: 18px">{{ user.displayName }}</span>
       </mat-card>
 
       <mat-card
-        style="display: flex; flex-direction: column; align-items: center"
+        style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          background-color: #fafafa;
+        "
         class="col-md-4"
       >
         <span>Say Hi to {{ user.displayName }} </span>

@@ -30,6 +30,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActiveChatsComponent } from '../active-chats/active-chats.component';
 import { InviteWindowComponent } from '../invite-window/invite-window.component';
 import { InvitationsComponent } from '../invitations/invitations.component';
+import { ScrollableDirective } from '../../common/custom-directives/scrollable.directive';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -41,6 +42,7 @@ import { InvitationsComponent } from '../invitations/invitations.component';
     ActiveChatsComponent,
     InviteWindowComponent,
     InvitationsComponent,
+    ScrollableDirective,
   ],
   imports: [
     CommonModule,

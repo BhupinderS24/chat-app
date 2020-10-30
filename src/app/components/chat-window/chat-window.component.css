@@ -59,7 +59,7 @@ input:focus {
 }
 
 .message.received {
-  background: #fff;
+  background: #fafafa;
   border-radius: 0px 5px 5px 5px;
   float: left;
 }

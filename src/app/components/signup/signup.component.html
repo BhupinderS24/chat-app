@@ -5,6 +5,16 @@
 
       <div class="formGroup">
         <input
+          type="text"
+          class="formControl"
+          placeholder="username"
+          #userName
+          required
+        />
+      </div>
+
+      <div class="formGroup">
+        <input
           type="email"
           class="formControl"
           placeholder="Email Address"
@@ -28,7 +38,7 @@
           type="button"
           class="btn btnPrimary"
           value="Sign Up"
-          (click)="signUp(userEmail.value, userPwd.value)"
+          (click)="signUp(userName.value, userEmail.value, userPwd.value)"
         />
       </div>
 
@@ -55,9 +65,7 @@
 
     <div class="redirectToLogin">
       <span>Already have an account? </span>
-      <a (click)="signInClickHandler()" class="redirect">
-        Log In
-      </a>
+      <a (click)="signInClickHandler()" class="redirect"> Log In </a>
     </div>
   </div>
 </div>

@@ -5,13 +5,14 @@
 
 @import "https://use.fontawesome.com/releases/v5.5.0/css/all.css";
 
+@import url("https://fonts.googleapis.com/css2?family=Public+Sans:wght@300&display=swap");
 html,
 body {
   height: 100%;
 }
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: "Public Sans", sans-serif;
 }
 
 table.mat-table {
@@ -29,4 +30,14 @@ table.mat-table {
   min-width: 130px !important;
   padding: 3px !important;
   margin: 0px 10px !important;
+}
+
+.mat-drawer-container {
+  background-color: white;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.mat-toolbar {
+  background: white;
+  color: rgba(0, 0, 0, 0.87);
 }

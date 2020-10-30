@@ -46,7 +46,7 @@ export class ActiveChatsComponent implements OnInit {
 
       .subscribe((data: any) => {
         console.log('UserChats', data);
-        this.users = [];
+        console.log('UserChatObs', this.userChatsObjs);
 
         if (this.userChatsObjs.length === 0) {
           for (let obj of data) {
@@ -132,18 +132,25 @@ export class ActiveChatsComponent implements OnInit {
           .object(`chats/${obj.chatId}`)
           .valueChanges()
           .subscribe((chatInfo: any) => {
+            console.log('chatInfo', chatInfo);
+            console.log('userInfo', userInfo);
+
+            // let userPresent = false;
             for (let index in this.users) {
-              if (this.users[index].uid === userInfo.uid) {
+              if (this.users[index].userInfo.uid === userInfo.uid) {
                 this.users[index] = {
                   ...{ userInfo },
                   ...{ chatInfo },
                 };
+                // userPresent = true;
                 return;
               }
             }
 
+            // if (!userPresent) {
             this.users.push({ ...{ userInfo }, ...{ chatInfo } });
             console.log(this.users);
+            // }
           });
       });
   }
@@ -164,7 +171,7 @@ export class ActiveChatsComponent implements OnInit {
 
     for (let obj of this.userChatsObjs) {
       if (obj.userId === user.userInfo.uid) {
-        this.router.navigateByUrl(`/dashboard/chats/${obj.userId}`);
+        this.router.navigateByUrl(`/dashboard/chats/${obj.chatId}`);
       }
     }
 

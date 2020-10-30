@@ -43,37 +43,16 @@ export class InviteWindowComponent implements OnInit {
       });
   }
 
-  sendMessage(message) {
-    this.adminUser = JSON.parse(localStorage.getItem('user'));
-
-    let arr = [];
-
-    const messageId = this.af.list(`chats`);
-    let adminUserId = this.adminUser.uid;
-    let userId = this.user.uid;
-
-    const key = messageId.push({
-      members: [this.adminUser.uid, this.user.uid],
-    }).key;
-
-    this.chatId = key;
-
-    const messageKey = this.af.list(`chatsMessages/${this.chatId}`).push({
-      sentBy: this.adminUser.uid,
-      message: message,
-      sent: true,
-      time: new Date().toString(),
-      chatId: this.chatId,
-      read: false,
-    }).key;
-
+  setChatInUserInfo() {
     const userChats = this.af.list(`users/${this.adminUser.uid}/userChats`);
 
-    userChats.push({ userId: this.userId, chatId: key });
+    userChats.push({ userId: this.userId, chatId: this.chatId });
 
     const userChats2 = this.af.list(`users/${this.userId}/userChats`);
-    userChats2.push({ userId: this.adminUser.uid, chatId: key });
+    userChats2.push({ userId: this.adminUser.uid, chatId: this.chatId });
+  }
 
+  updateChatInfo(messageKey, message) {
     const messageId2 = this.af.object(`chats/${this.chatId}`);
 
     messageId2.update({
@@ -97,5 +76,41 @@ export class InviteWindowComponent implements OnInit {
     messageId4.update({
       unReadCount: 1,
     });
+  }
+
+  createNewChatId(message) {
+    const messageId = this.af.list(`chats`);
+    let adminUserId = this.adminUser.uid;
+    let userId = this.user.uid;
+
+    const key = messageId.push({
+      members: [this.adminUser.uid, this.user.uid],
+    }).key;
+
+    this.chatId = key;
+
+    const messageKey = this.af.list(`chatsMessages/${this.chatId}`).push({
+      sentBy: this.adminUser.uid,
+      message: message,
+      sent: true,
+      time: new Date().toString(),
+      chatId: this.chatId,
+      read: false,
+    }).key;
+
+    this.af
+      .object(`chatsMessages/${this.chatId}/${messageKey}`)
+      .update({ messageKey: messageKey });
+
+    this.setChatInUserInfo();
+
+    this.updateChatInfo(messageKey, message);
+  }
+
+  sendMessage(message) {
+    this.adminUser = JSON.parse(localStorage.getItem('user'));
+
+    let arr = [];
+    this.createNewChatId(message);
   }
 }

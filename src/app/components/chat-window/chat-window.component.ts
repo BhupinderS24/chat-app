@@ -5,6 +5,7 @@ import { distinctUntilChanged, take } from 'rxjs/operators';
 import { MembersComponent } from '../members/members.component';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { ScrollDispatcher } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-chat-window',
@@ -15,10 +16,18 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   constructor(
     private dataService: DataService,
     private af: AngularFireDatabase,
-    private route: ActivatedRoute
-  ) {}
+    private route: ActivatedRoute,
+    private scrollDispatcher: ScrollDispatcher
+  ) {
+    this.scrollDispatcher
+      .scrolled()
+      .subscribe((x) => console.log('I am scrolling'));
+  }
   ngOnDestroy(): void {
     // throw new Error('Method not implemented.');
+    console.log('NGONDESTROY CHAT WINDOW');
+    this.subscription1$.unsubscribe();
+    this.subscription2$.unsubscribe();
   }
 
   user: any;
@@ -35,6 +44,134 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   sentBy: '';
   blockedUser = [];
   blockedBy = [];
+  lastMessageKey = '';
+
+  scrollHandler(e) {
+    console.log('SCROLLEVENT', e);
+    // should log top or bottom
+
+    if (e === 'top') {
+      let check = this.af.list(`chatsMessages/${this.chatId}`, (ref) =>
+        ref.orderByKey().endAt(this.lastMessageKey).limitToLast(25)
+      );
+
+      check
+        .valueChanges()
+        .pipe(take(1))
+        .subscribe((data: any[]) => {
+          this.lastMessageKey = data[0].messageKey;
+          this.messages.unshift(...data);
+        });
+    }
+  }
+
+  getInvitation() {
+    const messageId2 = this.af.object(`chats/${this.chatId}`);
+
+    this.subscription2$ = messageId2.valueChanges().subscribe((data: any) => {
+      if (data.invitation !== undefined) {
+        this.invitation = data.invitation;
+      }
+
+      if (data.lastMessageSentBy !== undefined) {
+        this.sentBy = data.lastMessageSentBy;
+      }
+    });
+  }
+
+  getUserDetails() {
+    const messageId3 = this.af.object(`chats/${this.chatId}/members`);
+
+    messageId3
+      .valueChanges()
+      .pipe(take(1))
+      .subscribe((members: any[]) => {
+        console.log('members', members);
+
+        let tempArr = [];
+        tempArr = members.filter((el, i, arr) => el !== this.adminUser.uid);
+
+        console.log('tempArr', tempArr);
+
+        this.userId = tempArr[0];
+
+        const messageId4 = this.af.object(`users/${this.userId}`);
+
+        messageId4
+          .valueChanges()
+          .pipe(take(1))
+          .subscribe((user) => {
+            this.user = user;
+
+            this.showUI = true;
+          });
+      });
+  }
+
+  getChatMessages() {
+    const messages5 = this.af.list(`chatsMessages/${this.chatId}`, (ref) =>
+      ref.limitToLast(25)
+    );
+
+    // this.af.list(`chatsMessages/${this.chatId}`, (ref) => ref.limitToLast(25));
+
+    this.subscription1$ = messages5
+      .valueChanges()
+      .subscribe((messages: any[]) => {
+        console.log(messages);
+        this.lastMessageKey = messages[0].messageKey;
+        console.log('lastMessageKey', this.lastMessageKey);
+
+        this.messages = messages;
+
+        let query = {
+          orderByKey: true,
+          limitToLast: 25,
+          startAt: this.lastMessageKey,
+        };
+
+        // if (this.messages[this.messages.length - 1].chatId === this.chatId) {
+        //   this.dataService.changeMessages(messages);
+        // }
+        const messageId6 = this.af.object(
+          `chats/${this.chatId}/${this.adminUser.uid}`
+        );
+
+        messageId6
+          .valueChanges()
+          .pipe(take(1))
+          .subscribe((data: any) => {
+            messageId6.update({
+              unReadCount: 0,
+            });
+          });
+      });
+  }
+
+  getBlockedUser() {
+    this.blockedUser = [];
+
+    const messageId4 = this.af.list(`users/${this.adminUser.uid}/blocked`);
+
+    messageId4.valueChanges().subscribe((blocked: any[]) => {
+      for (let user of blocked) {
+        this.blockedUser.push(user.user);
+      }
+    });
+
+    const messageId5 = this.af.list(`users/${this.adminUser.uid}/blockedBy`);
+  }
+
+  getBlockedBy() {
+    this.blockedBy = [];
+    const messageId5 = this.af.list(`users/${this.adminUser.uid}/blockedBy`);
+
+    messageId5.valueChanges().subscribe((blocked: any[]) => {
+      for (let user of blocked) {
+        this.blockedBy.push(user.user);
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.route.params
@@ -47,6 +184,8 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
         this.adminUser = JSON.parse(localStorage.getItem('user'));
         this.chatId = params.chatId;
 
+        console.log(this.chatId);
+
         if (this.subscription1$ != undefined) {
           this.subscription1$.unsubscribe();
         }
@@ -55,87 +194,13 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
           this.subscription2$.unsubscribe();
         }
 
-        const messageId2 = this.af.object(`chats/${this.chatId}`);
+        this.getInvitation();
 
-        this.subscription2$ = messageId2
-          .valueChanges()
-          .subscribe((data: any) => {
-            if (data.invitation !== undefined) {
-              this.invitation = data.invitation;
-            }
+        this.getUserDetails();
 
-            if (data.lastMessageSentBy !== undefined) {
-              this.sentBy = data.lastMessageSentBy;
-            }
-          });
+        this.getChatMessages();
 
-        const messageId3 = this.af.object(`chats/${this.chatId}/members`);
-
-        messageId3
-          .valueChanges()
-          .pipe(take(1))
-          .subscribe((members: any[]) => {
-            let tempArr = [];
-            tempArr = members.filter((el, i, arr) => el !== this.adminUser.uid);
-
-            this.userId = tempArr[0];
-
-            const messageId4 = this.af.object(`users/${this.userId}`);
-
-            messageId4
-              .valueChanges()
-              .pipe(take(1))
-              .subscribe((user) => {
-                this.user = user;
-              });
-          });
-
-        const messages5 = this.af.list(`chatsMessages/${this.chatId}`, (ref) =>
-          ref.limitToLast(25)
-        );
-
-        this.subscription1$ = messages5.valueChanges().subscribe((messages) => {
-          this.messages = messages;
-          this.showUI = true;
-          // if (this.messages[this.messages.length - 1].chatId === this.chatId) {
-          //   this.dataService.changeMessages(messages);
-          // }
-          const messageId6 = this.af.object(
-            `chats/${this.chatId}/${this.adminUser.uid}`
-          );
-
-          messageId6
-            .valueChanges()
-            .pipe(take(1))
-            .subscribe((data: any) => {
-              messageId6.update({
-                unReadCount: 0,
-              });
-            });
-        });
-
-        this.blockedUser = [];
-        this.blockedBy = [];
-        const messageId4 = this.af.list(`users/${this.adminUser.uid}/blocked`);
-
-        messageId4
-          .valueChanges()
-
-          .subscribe((blocked: any[]) => {
-            for (let user of blocked) {
-              this.blockedUser.push(user.user);
-            }
-          });
-
-        const messageId5 = this.af.list(
-          `users/${this.adminUser.uid}/blockedBy`
-        );
-
-        messageId5.valueChanges().subscribe((blocked: any[]) => {
-          for (let user of blocked) {
-            this.blockedBy.push(user.user);
-          }
-        });
+        this.getBlockedUser();
       });
 
     // this.dataService.currentMember.subscribe((member: any) => {
@@ -360,7 +425,10 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
     // chatIdsRef.set(chatObj);
   }
 
+  pushMessages() {}
+
   checkIfChatExists() {
+    this.pushMessages();
     const messageKey = this.af.list(`chatsMessages/${this.chatId}`).push({
       sentBy: this.adminUser.uid,
       message: this.message,
@@ -369,6 +437,10 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
       chatId: this.chatId,
       read: false,
     }).key;
+
+    this.af
+      .object(`chatsMessages/${this.chatId}/${messageKey}`)
+      .update({ messageKey: messageKey });
 
     // console.log('LastSeen', this.user.lastSeen);
 

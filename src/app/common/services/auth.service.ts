@@ -64,7 +64,7 @@ export class AuthService {
         this.userData = result.user;
 
         //localStorage.setItem('user', JSON.stringify(this.userData));
-        this.SetUserData(result.user);
+        // this.SetUserData(result.user);
       })
       .catch((error) => {
         window.alert(error.message);
@@ -106,12 +106,15 @@ export class AuthService {
   }
 
   // Sign up with email/password
-  SignUp(email, password) {
+  SignUp(username, email, password) {
     this.afAuth
       .createUserWithEmailAndPassword(email, password)
       .then((result) => {
+        let user = { ...result.user, displayName: username };
+
+        console.log('USER', user);
         // this.SendVerificationMail();
-        this.SetUserData(result.user);
+        this.SetUserData(user);
       })
       .catch((error) => {
         window.alert(error.message);

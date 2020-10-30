@@ -15,8 +15,8 @@ export class SignupComponent implements OnInit {
     this.authService.GoogleAuth();
   }
 
-  signUp(email, password) {
-    this.authService.SignUp(email, password);
+  signUp(username, email, password) {
+    this.authService.SignUp(username, email, password);
   }
 
   signInClickHandler() {

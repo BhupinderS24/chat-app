@@ -6,6 +6,7 @@
   >
     <div class="user-dp">
       <img
+        *ngIf="user.photo !== undefined"
         style="
           margin-right: 10px;
           width: 35px;
@@ -14,6 +15,14 @@
         "
         src="{{ user.photo }}"
       />
+
+      <span
+        style="font-size: 40px; width: 35px; height: 35px; margin-right: 10px"
+        *ngIf="user.photo === undefined"
+        class="material-icons"
+      >
+        account_circle_outlined
+      </span>
     </div>
 
     {{ user.displayName }}</mat-list-item
