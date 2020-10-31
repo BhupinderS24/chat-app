@@ -19,7 +19,7 @@
 
 .custom-search-input {
   height: 40px;
-  width: 100%;
+  /* width: 100%; */
   border-style: hidden;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
@@ -115,3 +115,10 @@ input:focus {
   -webkit-transform: perspective(800px) rotateY(-179.9deg);
   transform: perspective(800px) rotateY(-179.9deg);
 } */
+
+.waiting {
+  background: url("../../../assets/young-man-looking-his-watch-waiting-someone_37732-57.jpg");
+  height: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+}

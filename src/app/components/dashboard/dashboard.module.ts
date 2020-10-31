@@ -31,6 +31,8 @@ import { ActiveChatsComponent } from '../active-chats/active-chats.component';
 import { InviteWindowComponent } from '../invite-window/invite-window.component';
 import { InvitationsComponent } from '../invitations/invitations.component';
 import { ScrollableDirective } from '../../common/custom-directives/scrollable.directive';
+import { InfiniteScrollModule } from 'ngx-infinite-scroll';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -66,6 +68,8 @@ import { ScrollableDirective } from '../../common/custom-directives/scrollable.d
     MatListModule,
     FormsModule,
     ReactiveFormsModule,
+    InfiniteScrollModule,
+    MatProgressSpinnerModule,
   ],
   entryComponents: [DialogComponent],
 })

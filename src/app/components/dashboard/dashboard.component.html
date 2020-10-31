@@ -59,16 +59,67 @@
 </div> -->
 
 <mat-drawer-container class="example-container">
-  <mat-drawer style="background: #fafafa" class="col-md-3" mode="side" opened
-    >Drawer content
-    <a class="nav-link" (click)="authService.SignOut()">
+  <mat-drawer style="background: #fafafa" class="col-md-3" mode="side" opened>
+    <!-- <a class="nav-link" (click)="authService.SignOut()">
       <i class="fas fa-sign-out-alt"></i>Log out
-    </a>
+    </a> -->
+    <div
+      style="display: flex; margin-top: 10px; margin-bottom: 10px"
+      *ngIf="showDetail"
+    >
+      <div class="user-dp">
+        <img
+          *ngIf="adminUser.photo !== undefined"
+          style="
+            margin-right: 10px;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+          "
+          src="{{ adminUser.photo }}"
+        />
+
+        <span
+          style="
+            display: flex;
+            font-size: 40px;
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            overflow: hidden;
+          "
+          *ngIf="adminUser.photo === undefined"
+          class="material-icons"
+        >
+          account_circle_outlined
+        </span>
+      </div>
+
+      <div class="name">
+        {{ adminUser.displayName }}
+      </div>
+    </div>
     <mat-tab-group>
       <mat-tab label="Chats">
-        <app-active-chats></app-active-chats>
+        <ng-template mat-tab-label>
+          <div style="display: flex; flex-direction: column">
+            <span style="margin-bottom: 2px" class="material-icons">
+              chat
+            </span>
+            <span style="font-size: 10px">Chats</span>
+          </div>
+        </ng-template>
+        <app-active-chats style="margin-top: 10px"></app-active-chats>
       </mat-tab>
       <mat-tab label="Members">
+        <ng-template mat-tab-label>
+          <div style="display: flex; flex-direction: column">
+            <span style="margin-bottom: 2px" class="material-icons">
+              people
+            </span>
+            <span style="font-size: 10px">Members</span>
+          </div>
+        </ng-template>
         <app-members></app-members>
       </mat-tab>
     </mat-tab-group>

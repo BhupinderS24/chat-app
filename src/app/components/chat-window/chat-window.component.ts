@@ -31,7 +31,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   }
 
   user: any;
-  message: string;
+  message: string = '';
   adminUser: any;
   messages: any[] = [];
   chatId: any = '';
@@ -45,24 +45,58 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   blockedUser = [];
   blockedBy = [];
   lastMessageKey = '';
+  showSpinner = false;
+  previousMessagekey = '';
+
+  scrollHandler2(event) {
+    console.log('height', event);
+  }
+
+  scrollHandler3(event) {
+    console.log('offset', event);
+  }
 
   scrollHandler(e) {
     console.log('SCROLLEVENT', e);
+
+    // if (this.lastMessageKey != this.previousMessagekey) {
+    this.showSpinner = true;
+    // }
     // should log top or bottom
+    console.log('SCROLLHANDLER');
+    var el = document.getElementById('scrollToChat');
+    const height = el.scrollHeight;
+    const offset = el.offsetHeight;
 
-    if (e === 'top') {
-      let check = this.af.list(`chatsMessages/${this.chatId}`, (ref) =>
-        ref.orderByKey().endAt(this.lastMessageKey).limitToLast(25)
-      );
+    console.log('Height1', el.scrollHeight);
+    console.log('offset1', el.offsetHeight);
 
-      check
-        .valueChanges()
-        .pipe(take(1))
-        .subscribe((data: any[]) => {
-          this.lastMessageKey = data[0].messageKey;
-          this.messages.unshift(...data);
-        });
-    }
+    console.log('scrollTop1', el.scrollTop);
+
+    let check = this.af.list(`chatsMessages/${this.chatId}`, (ref) =>
+      ref.orderByKey().endAt(this.lastMessageKey).limitToLast(25)
+    );
+
+    check
+      .valueChanges()
+      .pipe(take(1))
+      .subscribe((data: any[]) => {
+        console.log('data', data);
+        this.lastMessageKey = data[0].messageKey;
+
+        if (this.lastMessageKey != this.previousMessagekey) {
+          this.messages.unshift(...data.slice(0, data.length - 1));
+
+          setTimeout(() => {
+            console.log('Height2', el.scrollHeight);
+            console.log('offset2', el.offsetHeight);
+            console.log('scrollTop2', el.scrollTop);
+            this.showSpinner = false;
+            el.scrollTop =
+              el.scrollHeight - el.offsetHeight - (height - offset);
+          });
+        }
+      });
   }
 
   getInvitation() {
@@ -120,6 +154,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
       .subscribe((messages: any[]) => {
         console.log(messages);
         this.lastMessageKey = messages[0].messageKey;
+        this.previousMessagekey = this.lastMessageKey;
         console.log('lastMessageKey', this.lastMessageKey);
 
         this.messages = messages;
@@ -173,6 +208,32 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
     });
   }
 
+  getUserUnReadMessages() {
+    const messageId3 = this.af.object(
+      `chats/${this.chatId}/${this.adminUser.uid}`
+    );
+    let unReadCount;
+    messageId3.valueChanges().subscribe((data: any) => {
+      console.log('UnReadCount', data.unReadCount);
+      unReadCount = data.unReadCount;
+
+      const messages5 = this.af.list(`chatsMessages/${this.chatId}`, (ref) =>
+        ref.limitToLast(unReadCount)
+      );
+
+      messages5
+        .valueChanges()
+        .pipe(take(1))
+        .subscribe((data: any[]) => {
+          for (let message of data) {
+            this.af
+              .object(`chatsMessages/${this.chatId}/${message.messageKey}`)
+              .update({ read: true });
+          }
+        });
+    });
+  }
+
   ngOnInit(): void {
     this.route.params
       .pipe(
@@ -197,6 +258,8 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
         this.getInvitation();
 
         this.getUserDetails();
+
+        // this.getUserUnReadMessages();
 
         this.getChatMessages();
 
@@ -425,10 +488,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
     // chatIdsRef.set(chatObj);
   }
 
-  pushMessages() {}
-
   checkIfChatExists() {
-    this.pushMessages();
     const messageKey = this.af.list(`chatsMessages/${this.chatId}`).push({
       sentBy: this.adminUser.uid,
       message: this.message,
@@ -466,6 +526,8 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
           lastMessageKey: messageKey,
           lastMessage: this.message,
         });
+
+        this.message = '';
       });
   }
 

@@ -11,6 +11,7 @@ import {
   AngularFireObject,
 } from '@angular/fire/database';
 import { AuthService } from '../../common/services/auth.service';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,22 +28,34 @@ export class DashboardComponent implements OnInit {
     public authService: AuthService
   ) {}
 
+  adminUser: any;
+  showDetail = false;
+
   ngOnInit(): void {
     if (localStorage.getItem('user')) {
       const user = JSON.parse(localStorage.getItem('user'));
 
-      const tutRef = this.af.object(`userChats/${user.uid}`);
-      tutRef.update({ chatIds: [] });
+      this.af
+        .object(`users/${user.uid}`)
+        .valueChanges()
+        .pipe(take(1))
+        .subscribe((userInfo: any) => {
+          this.adminUser = userInfo;
+          this.showDetail = true;
+        });
+
+      // const tutRef = this.af.object(`userChats/${user.uid}`);
+      // tutRef.update({ chatIds: [] });
     }
     this.beforeUnload();
   }
 
   beforeUnload() {
     window.onbeforeunload = () => {
-      const user = JSON.parse(localStorage.getItem('user'));
+      // const user = JSON.parse(localStorage.getItem('user'));
 
       this.af
-        .object(`users/${user.uid}`)
+        .object(`users/${this.adminUser.uid}`)
         .update({ lastSeen: new Date(), online: false });
 
       // if (this.websocketStatus === OPENSTATUS) {

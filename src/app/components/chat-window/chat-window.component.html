@@ -34,8 +34,13 @@
 
   <ng-container *ngIf="!invitation">
     <div
+      id="scrollToChat"
+      infiniteScroll
+      [infiniteScrollUpDistance]="2"
+      [infiniteScrollThrottle]="1000"
+      (scrolledUp)="scrollHandler($event)"
+      [scrollWindow]="false"
       scrollable
-      (scrollPosition)="scrollHandler($event)"
       style="
         padding-left: 50px;
         padding-right: 50px;
@@ -43,6 +48,12 @@
         overflow-y: auto;
       "
     >
+      <mat-spinner
+        diameter="40"
+        style="margin: 0 auto"
+        mode="indeterminate"
+        *ngIf="showSpinner"
+      ></mat-spinner>
       <div
         [ngClass]="{
           sent: message.sentBy === adminUser.uid,
@@ -75,19 +86,25 @@
 
     <mat-toolbar
       *ngIf="!blockedUser.includes(userId) && !blockedBy.includes(userId)"
-      style="height: 50px; background-color: #ededed; font-weight: 400"
+      style="height: 80px; font-weight: 400; border-top: 1px solid #ddd"
     >
       <div class="input-group mb-3">
         <input
+          style="background: #f0f0f0; border-radius: 10px; font-size: 15px"
           type="text"
           [(ngModel)]="message"
-          class="form-control custom-search-input"
+          class="form-control custom-search-input input-lg"
           placeholder="Search"
           aria-describedby="basic-addon2"
+          (keyup.enter)="sendMessage()"
         />
       </div>
 
-      <button (click)="sendMessage()" mat-button>
+      <button
+        [disabled]="message.length == 0"
+        (click)="sendMessage()"
+        mat-button
+      >
         <span class="material-icons"> send </span>
       </button>
     </mat-toolbar>
@@ -170,7 +187,9 @@
     </div>
   </div>
 
-  <div *ngIf="invitation && sentBy === adminUser.uid">
-    <div>Request Sent Waiting for Response</div>
+  <div class="waiting" *ngIf="invitation && sentBy === adminUser.uid">
+    <div style="text-align: center; font-size: 20px; font-weight: 500">
+      Chat Request Sent Waiting for Response
+    </div>
   </div>
 </div>

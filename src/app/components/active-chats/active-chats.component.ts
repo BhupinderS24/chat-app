@@ -26,7 +26,7 @@ export class ActiveChatsComponent implements OnInit {
   userInfos = [];
   allchatIds = [];
   userChatsObjs = [];
-
+  activeUser: any;
   constructor(
     public af: AngularFireDatabase,
     private dataService: DataService,
@@ -156,6 +156,7 @@ export class ActiveChatsComponent implements OnInit {
   }
 
   memberClicked(user) {
+    this.activeUser = user;
     this.dataService.changeData(user);
 
     // console.log('MEMBER', member);
